@@ -1,0 +1,704 @@
+substitutions:
+  device_name: inverter
+  friendly_name: "Growatt Inverter"
+  device_description: "Growatt SPH5000"
+
+esphome:
+  name: $device_name
+  friendly_name: $friendly_name
+
+esp8266:
+  board: d1_mini
+
+logger:
+  level: DEBUG
+  baud_rate: 0
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_enc
+
+ota:
+  password: !secret ota_pwd
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${device_name}
+    password: !secret hotspot_wifi_password
+
+captive_portal:
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    timezone: Europe/London
+
+web_server:
+  port: 80
+  include_internal: true  
+
+output:
+# Blue Led
+  - id: light_bl
+    platform: gpio
+    pin: 16
+# Green Led
+  - id: light_gr
+    platform: gpio
+    pin: 0
+# Red Led
+  - id: light_rd
+    platform: gpio
+    pin: 2
+
+uart:
+  id: uart_modbus
+  tx_pin: GPIO1
+  rx_pin: GPIO3
+  baud_rate: 9600
+ 
+modbus:
+  id: modbus1
+  uart_id: uart_modbus
+  flow_control_pin: GPIO4
+    
+modbus_controller:
+  - id: growatt
+    address: 0x1
+    modbus_id: modbus1
+    update_interval: 15s
+    setup_priority: -10    
+
+button:
+  - platform: restart
+    name: "${friendly_name} Restart"
+
+  - platform: template
+    name: "${friendly_name} Battery First"
+    on_press:
+      then:
+          lambda: |-
+            esphome::modbus_controller::ModbusController *controller = id(growatt);
+            std::vector<uint16_t> on={0,23*256+59,1};
+            std::vector<uint16_t> off={0,23*256+59,0};
+            int size = on.size();
+
+            ESP_LOGI("ModbusLambda","Enqueue Writes");
+            //BF1
+            controller->queue_command(esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller,1100,size,on));
+            //LF1
+            controller->queue_command(esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller,1110,size,off));
+            //GF1
+            controller->queue_command(esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller,1080,size,off));
+            ESP_LOGI("ModbusLambda","Writes");
+
+  - platform: template
+    name: "${friendly_name} Load First"
+    on_press:
+      then:
+          lambda: |-
+            esphome::modbus_controller::ModbusController *controller = id(growatt);
+            std::vector<uint16_t> on={0,23*256+59,1};
+            std::vector<uint16_t> off={0,23*256+59,0};
+            int size = on.size();
+
+            ESP_LOGI("ModbusLambda","Enqueue Writes");
+            //BF1
+            controller->queue_command(esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller,1100,size,off));
+            //LF1
+            controller->queue_command(esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller,1110,size,on));
+            //GF1
+            controller->queue_command(esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller,1080,size,off));
+            ESP_LOGI("ModbusLambda","Writes");
+
+  - platform: template
+    name: "${friendly_name} Grid First"
+    on_press:
+      then:
+          lambda: |-
+            esphome::modbus_controller::ModbusController *controller = id(growatt);
+            std::vector<uint16_t> on={0,23*256+59,1};
+            std::vector<uint16_t> off={0,23*256+59,0};
+            int size = on.size();
+
+            ESP_LOGI("ModbusLambda","Enqueue Writes");
+            //BF1
+            controller->queue_command(esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller,1100,size,off));
+            //LF1
+            controller->queue_command(esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller,1110,size,off));
+            //GF1
+            controller->queue_command(esphome::modbus_controller::ModbusCommandItem::create_write_multiple_command(controller,1080,size,on));
+            ESP_LOGI("ModbusLambda","Writes");
+
+text_sensor:
+  - platform: template
+    name: "${friendly_name} Status"
+    icon: mdi:eye
+    entity_category: diagnostic
+    update_interval: 10s
+    lambda: |-
+      if ((id(status).state) == 1) {
+        return {"Normal"};
+      } else if ((id(status).state) == 0)  {
+        return {"Standby"};
+      } else if ((id(status).state) == 2)  {
+        return {"Discharge"};
+      } else if ((id(status).state) == 3)  {
+        return {"Fault"};
+      } else if ((id(status).state) == 4)  {
+        return {"Flash"};
+      } else if ((id(status).state) == 5)  {
+        return {"PV Charging"};
+      } else if ((id(status).state) == 6)  {
+        return {"AC Charging"};
+      } else if ((id(status).state) == 7)  {
+        return {"Combined Charging"};
+      } else if ((id(status).state) == 8)  {
+        return {"Combined Charging & Bypass"};
+      } else if ((id(status).state) == 9)  {
+        return {"PV Charging & Bypass"};
+      } else if ((id(status).state) == 10)  {
+        return {"AC Charging & Bypass"};
+      } else if ((id(status).state) == 11)  {
+        return {"Bypass"};
+      } else if (id(status).state == 12)  {
+        return {"PV Charge and Discharge"};
+      } else {
+        return {"Unknown"};
+      }
+
+#  - platform: template
+#    name: "${friendly_name} Battery Status"
+#    icon: mdi:eye
+#    entity_category: diagnostic
+#    update_interval: 10s
+#    lambda: |-
+#      if ((id(battery_status).state) == 0) {
+#        return {"Charging"};
+#      } else if ((id(battery_status).state) == 1)  {
+#        return {"Discharging"};
+#      } else if ((id(battery_status).state) == 2)  {
+#        return {"Sleep"};
+#      } else {
+#        return {"Unknown"};
+#      }
+
+sensor:
+  - platform: wifi_signal
+    name: "${friendly_name} WiFi Signal"
+    update_interval: 60s
+    
+  - platform: uptime
+    name: "${friendly_name} Uptime"
+    id: uptime_sensor
+    update_interval: 60s
+
+  - platform: modbus_controller
+    address: 0
+    register_type: "read"
+    internal: true
+    accuracy_decimals: 0
+    id: status
+
+  - platform: modbus_controller
+    name: "${friendly_name} Total Power"
+    address: 35
+    register_type: "read"
+    unit_of_measurement: kW
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 3
+    filters:
+    - multiply: 0.0001
+
+  - platform: modbus_controller
+    name: "${friendly_name} AcFrequency"
+    address: 37
+    register_type: "read"
+    unit_of_measurement: Hz
+    icon: mdi:flash
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.01
+
+  - platform: modbus_controller
+    name: "${friendly_name} AcVoltage VAC1"
+    address: 38
+    register_type: "read"
+    unit_of_measurement: V
+    device_class: voltage
+    icon: mdi:flash
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} AcOutputCurrent IAC1"
+    address: 39
+    register_type: "read"
+    unit_of_measurement: A
+    device_class: current
+    icon: mdi:flash
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} AcPower PAC1"
+    address: 40
+    register_type: "read"
+    unit_of_measurement: W
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} AcVoltage VAC2"
+    address: 42
+    register_type: "read"
+    unit_of_measurement: V
+    device_class: voltage
+    icon: mdi:flash
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} AcOutputCurrent IAC2"
+    address: 43
+    register_type: "read"
+    unit_of_measurement: A
+    device_class: current
+    icon: mdi:flash
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} AcPower PAC2"
+    address: 44
+    register_type: "read"
+    unit_of_measurement: W
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} AcVoltage VAC3"
+    address: 46
+    register_type: "read"
+    unit_of_measurement: V
+    device_class: voltage
+    icon: mdi:flash
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} AcOutputCurrent IAC3"
+    address: 47
+    register_type: "read"
+    unit_of_measurement: A
+    device_class: current
+    icon: mdi:flash
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} AcPower PAC3"
+    address: 48
+    register_type: "read"
+    unit_of_measurement: W
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Total Energy Today"
+    address: 53
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Total Energy Lifetime"
+    address: 55
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Temperature"
+    address: 93
+    register_type: "read"
+    unit_of_measurement: °C
+    device_class: temperature
+    state_class: measurement
+    icon: mdi:thermometer
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Battery Discharging Power"
+    address: 1009
+    register_type: "read"
+    unit_of_measurement: kW
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 3
+    filters:
+    - multiply: 0.0001
+
+  - platform: modbus_controller
+    name: "${friendly_name} Battery Charging Power"
+    address: 1011
+    register_type: "read"
+    unit_of_measurement: kW
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 3
+    filters:
+    - multiply: 0.0001
+
+  - platform: modbus_controller
+    name: "${friendly_name} Battery SoC"
+    address: 1014
+    register_type: "read"
+    unit_of_measurement: "%"
+    icon: mdi:flash
+    value_type: U_WORD
+    accuracy_decimals: 0
+
+  - platform: modbus_controller
+    name: "${friendly_name} Power to User 1"
+    address: 1015
+    register_type: "read"
+    unit_of_measurement: W
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Power to User 2"
+    address: 1017
+    register_type: "read"
+    unit_of_measurement: W
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Power to User 3"
+    address: 1019
+    register_type: "read"
+    unit_of_measurement: W
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Power to User Total"
+    address: 1021
+    register_type: "read"
+    unit_of_measurement: kW
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 3
+    filters:
+    - multiply: 0.0001
+
+  - platform: modbus_controller
+    name: "${friendly_name} Power to Grid 1"
+    address: 1023
+    register_type: "read"
+    unit_of_measurement: W
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Power to Grid 2"
+    address: 1025
+    register_type: "read"
+    unit_of_measurement: W
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Power to Grid 3"
+    address: 1027
+    register_type: "read"
+    unit_of_measurement: W
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Power to Grid Total"
+    address: 1029
+    register_type: "read"
+    unit_of_measurement: kW
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 3
+    filters:
+    - multiply: 0.0001
+
+  - platform: modbus_controller
+    name: "${friendly_name} INV Power to Local Load 1"
+    address: 1031
+    register_type: "read"
+    unit_of_measurement: W
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} INV Power to Local Load 2"
+    address: 1033
+    register_type: "read"
+    unit_of_measurement: W
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} INV Power to Local Load 3"
+    address: 1035
+    register_type: "read"
+    unit_of_measurement: W
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} INV Power to Local Load Total"
+    address: 1037
+    register_type: "read"
+    unit_of_measurement: kW
+    device_class: power
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 3
+    filters:
+    - multiply: 0.0001
+
+  - platform: modbus_controller
+    name: "${friendly_name} Battery Temperature"
+    address: 1040
+    register_type: "read"
+    unit_of_measurement: °C
+    device_class: temperature
+    state_class: measurement    
+    icon: mdi:thermometer
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Battery State"
+    address: 1041
+    register_type: "read"
+    icon: mdi:home-battery
+    value_type: U_WORD
+    id: battery_state
+
+  - platform: modbus_controller
+    name: "${friendly_name} Energy to User Today"
+    address: 1044
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Energy to User Total"
+    address: 1046
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Energy to Grid Today"
+    address: 1048
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Energy to Grid Total"
+    address: 1050
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Battery Discharge Today"
+    address: 1052
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Battery Discharge Total"
+    address: 1054
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Battery Charge Today"
+    address: 1056
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Battery Charge Total"
+    address: 1058
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Local Load Today"
+    address: 1060
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "${friendly_name} Local Load Total"
+    address: 1062
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:flash
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
