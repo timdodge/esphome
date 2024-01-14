@@ -54,16 +54,16 @@ binary_sensor:
       number: GPIO3
       mode: INPUT_PULLUP
       inverted: true
-    name: "${friendly_name} Button"
+    name: "Button"
     on_press:
       - switch.toggle: relay
   - platform: status
-    name: "${friendly_name} Server Status"
+    name: "Server Status"
 
 switch:
   # Relay (As Switch)
   - platform: gpio
-    name: "${friendly_name}"
+    name: "Switch"
     icon: "mdi:${main_icon}"
     pin: GPIO14
     id: relay
@@ -81,7 +81,7 @@ switch:
 sensor:
   # WiFi Signal Sensor
   - platform: wifi_signal
-    name: "${friendly_name} WiFi Status"
+    name: "WiFi Status"
     update_interval: 60s
   # Power Monitoring
   - platform: hlw8012
@@ -93,7 +93,7 @@ sensor:
     change_mode_every: 3
     update_interval: 3s
     voltage:
-      name: "${friendly_name} Voltage"
+      name: "Voltage"
       id: voltage
       unit_of_measurement: V
       accuracy_decimals: 1
@@ -104,7 +104,7 @@ sensor:
             - 602.87506 -> 229.9
             - 609.8 -> 232.8
     power:
-      name: "${friendly_name} Power"
+      name: "Power"
       id: power
       unit_of_measurement: W
       accuracy_decimals: 0
@@ -120,7 +120,7 @@ sensor:
             - 7237.0857 -> 1193.0
             - 7426.71338 -> 1217.0
     current:
-      name: "${friendly_name} Current"
+      name: "Current"
       id: current
       unit_of_measurement: A
       accuracy_decimals: 3
@@ -135,7 +135,7 @@ sensor:
             - 6.97187 -> 5.540
   # Total daily energy sensor
   - platform: total_daily_energy
-    name: "${friendly_name} Daily Energy"
+    name: "Daily Energy"
     power_id: power
     filters:
       # Multiplication factor from W to kW is 0.001
@@ -146,7 +146,7 @@ text_sensor:
   # Device Activity State
   # e.g. shows as active if power reading above a certain threshold
   - platform: template
-    name: "${friendly_name} Activity State"
+    name: "Activity State"
     icon: "mdi:${main_icon}"
     lambda: |-
       if (id(power).state >= $activity_threshold) {
