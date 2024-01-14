@@ -1,7 +1,8 @@
 # Gitignore settings for ESPHome
 # This is an example and may include too much for your use-case.
 # You can modify this file to suit your needs.
-/.esphome/
-/.platformio/
 /.keep_acct-user_esphome-0
 /.keep_dev-embedded_esphome-0
+/.esphome/
+/.platformio/
+/trash/

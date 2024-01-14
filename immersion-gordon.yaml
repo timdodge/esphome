@@ -46,14 +46,14 @@ api:
 ota:
   password: !secret ota_pwd
 
-esp32_ble_tracker:
-  scan_parameters:
-    interval: 1100ms
-    window: 1100ms
-    active: true
-
-bluetooth_proxy:
-  active: true
+#esp32_ble_tracker:
+#  scan_parameters:
+#    interval: 1100ms
+#    window: 1100ms
+#    active: true
+#
+#bluetooth_proxy:
+#  active: true
 
 uart:
   rx_pin: GPIO16
