@@ -4,7 +4,7 @@ substitutions:
   device_description: "LG FDM309W Tumble Dryer"
   main_icon: "power-socket-uk"
   # Options: `RESTORE_DEFAULT_OFF`, `RESTORE_DEFAULT_ON`, `ALWAYS_ON` & `ALWAYS_OFF`
-  default_state: "RESTORE_DEFAULT_OFF"
+  default_state: "RESTORE_DEFAULT_ON"
   # Number that the device will change from `Idle` to `Active` if power is greater than or equal to
   activity_threshold: "5"
 
