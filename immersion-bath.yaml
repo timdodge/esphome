@@ -61,9 +61,30 @@ sensor:
     current:
       name: Current
       id: a_sensor
+#      filters:
+#        # Map from sensor -> measured value
+#        - calibrate_linear:
+#            - 0.41169 -> 0.408
+#            - 0.60037 -> 0.592
+#            - 0.61882 -> 0.614
+#            - 0.62314 -> 0.617
+#            - 5.40302 -> 5.342
+#            - 11.72409 -> 11.587
+#            - 11.78437 -> 11.635
     voltage:
       name: Voltage
       id: v_sensor
+#      filters:
+#        # Map from sensor -> measured value
+#        - calibrate_linear:
+#            - 0.0 -> 0.0
+#            - 225.57768 -> 228.63
+#            - 288.12418 -> 230.88
+#            - 230.54639 -> 232.50
+#            - 232.03024 -> 233.69
+#            - 232.15378 -> 233.94
+#            - 232.61693 -> 233.87
+#            - 232.83418 -> 233.88
     power:
       name: Power
       id: w_sensor
@@ -74,6 +95,15 @@ sensor:
         - below: 3.0
           then:
             - light.turn_off: switch_led
+ #     filters:
+ #       # Map from sensor -> measured value
+ #       - calibrate_linear:
+ #           - 83.29405 -> 83.16
+ #           - 142.35542 -> 141.78
+ #           - 640.99188 -> 638.89
+ #           - 1236.42285 -> 1234.70
+ #           - 2646.89771 -> 2652.85
+ #           - 2670.41870 -> 2676.56
     energy:
       name: Energy
       id: wh_sensor
