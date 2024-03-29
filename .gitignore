@@ -5,4 +5,5 @@
 /.keep_dev-embedded_esphome-0
 /.esphome/
 /.platformio/
+/.cache/
 /trash/

@@ -2,6 +2,7 @@ substitutions:
   device_name: immersion-bath
   friendly_name: "Battle Walk Immersion"
   device_description: "Sonoff POW Elite 20A"
+  update_interval: 20s
 
 esphome:
   name: $device_name
@@ -57,10 +58,11 @@ time:
 
 sensor:
   - platform: cse7766
-    update_interval: 2s
     current:
       name: Current
       id: a_sensor
+      filters:
+        - throttle_average: ${update_interval}
 #      filters:
 #        # Map from sensor -> measured value
 #        - calibrate_linear:
@@ -74,6 +76,8 @@ sensor:
     voltage:
       name: Voltage
       id: v_sensor
+      filters:
+        - throttle_average: ${update_interval}
 #      filters:
 #        # Map from sensor -> measured value
 #        - calibrate_linear:
@@ -95,6 +99,8 @@ sensor:
         - below: 3.0
           then:
             - light.turn_off: switch_led
+      filters:
+        - throttle_average: ${update_interval}
  #     filters:
  #       # Map from sensor -> measured value
  #       - calibrate_linear:
@@ -107,6 +113,16 @@ sensor:
     energy:
       name: Energy
       id: wh_sensor
+      filters:
+        - throttle_average: ${update_interval}
+    apparent_power:
+      name: Apparent Power
+      filters:
+        - throttle_average: ${update_interval}
+    power_factor:
+      name: Power Factor
+      filters:
+        - throttle_average: ${update_interval}
 
   - platform: total_daily_energy
     name: Total Daily Energy
