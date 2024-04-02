@@ -1,5 +1,5 @@
 substitutions:
-  device_name: washing_machine
+  device_name: washing-machine
   friendly_name: "Washing Machine"
   device_description: "Haier HWQ90B416FWB-UK_WH Washing Machine"
   main_icon: "power-socket-uk"
@@ -40,6 +40,7 @@ web_server:
 
 logger:
   level: INFO
+  baud_rate: 0
 
 api:
   encryption:
