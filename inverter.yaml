@@ -7,8 +7,8 @@ esphome:
   name: $device_name
   friendly_name: $friendly_name
 
-esp8266:
-  board: d1_mini
+esp32:
+  board: nodemcu-32s
 
 wifi:
   ssid: !secret wifi_ssid
@@ -42,20 +42,6 @@ time:
     id: homeassistant_time
     timezone: Europe/London
 
-output:
-# Blue Led
-  - id: light_bl
-    platform: gpio
-    pin: 16
-# Green Led
-  - id: light_gr
-    platform: gpio
-    pin: 0
-# Red Led
-  - id: light_rd
-    platform: gpio
-    pin: 2
-
 uart:
   id: uart_modbus
   tx_pin: GPIO1
@@ -65,13 +51,12 @@ uart:
 modbus:
   id: modbus1
   uart_id: uart_modbus
-  flow_control_pin: GPIO4
     
 modbus_controller:
   - id: growatt
     address: 0x1
     modbus_id: modbus1
-    update_interval: 15s
+    update_interval: 30s
     setup_priority: -10    
 
 button:
@@ -191,8 +176,20 @@ text_sensor:
 sensor:
   - platform: wifi_signal
     name: "WiFi Signal"
+    id: wifi_signal_db
     update_interval: 60s
-    
+    entity_category: diagnostic
+    internal: true
+
+  # Reports the WiFi signal strength in %
+  - platform: copy
+    source_id: wifi_signal_db
+    name: "WiFi Strength"
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "%"
+    entity_category: diagnostic
+
   - platform: uptime
     name: "Uptime"
     id: uptime_sensor
@@ -300,41 +297,41 @@ sensor:
     filters:
     - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "AcVoltage VAC3"
-    address: 46
-    register_type: "read"
-    unit_of_measurement: V
-    device_class: voltage
-    icon: mdi:flash
-    value_type: U_WORD
-    accuracy_decimals: 1
-    filters:
-    - multiply: 0.1
+#  - platform: modbus_controller
+#    name: "AcVoltage VAC3"
+#    address: 46
+#    register_type: "read"
+#    unit_of_measurement: V
+#    device_class: voltage
+#    icon: mdi:flash
+#    value_type: U_WORD
+#    accuracy_decimals: 1
+#    filters:
+#    - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "AcOutputCurrent IAC3"
-    address: 47
-    register_type: "read"
-    unit_of_measurement: A
-    device_class: current
-    icon: mdi:flash
-    value_type: U_WORD
-    accuracy_decimals: 1
-    filters:
-    - multiply: 0.1
+#  - platform: modbus_controller
+#    name: "AcOutputCurrent IAC3"
+#    address: 47
+#    register_type: "read"
+#    unit_of_measurement: A
+#    device_class: current
+#    icon: mdi:flash
+#    value_type: U_WORD
+#    accuracy_decimals: 1
+#    filters:
+#    - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "AcPower PAC3"
-    address: 48
-    register_type: "read"
-    unit_of_measurement: W
-    device_class: power
-    icon: mdi:flash
-    value_type: U_DWORD
-    accuracy_decimals: 1
-    filters:
-    - multiply: 0.1
+#  - platform: modbus_controller
+#    name: "AcPower PAC3"
+#    address: 48
+#    register_type: "read"
+#    unit_of_measurement: W
+#    device_class: power
+#    icon: mdi:flash
+#    value_type: U_DWORD
+#    accuracy_decimals: 1
+#    filters:
+#    - multiply: 0.1
 
   - platform: modbus_controller
     name: "Total Energy Today"
@@ -432,17 +429,17 @@ sensor:
     filters:
     - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "Power to User 3"
-    address: 1019
-    register_type: "read"
-    unit_of_measurement: W
-    device_class: power
-    icon: mdi:flash
-    value_type: U_DWORD
-    accuracy_decimals: 1
-    filters:
-    - multiply: 0.1
+#  - platform: modbus_controller
+#    name: "Power to User 3"
+#    address: 1019
+#    register_type: "read"
+#    unit_of_measurement: W
+#    device_class: power
+#    icon: mdi:flash
+#    value_type: U_DWORD
+#    accuracy_decimals: 1
+#    filters:
+#    - multiply: 0.1
 
   - platform: modbus_controller
     name: "Power to User Total"
@@ -480,17 +477,17 @@ sensor:
     filters:
     - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "Power to Grid 3"
-    address: 1027
-    register_type: "read"
-    unit_of_measurement: W
-    device_class: power
-    icon: mdi:flash
-    value_type: U_DWORD
-    accuracy_decimals: 1
-    filters:
-    - multiply: 0.1
+#  - platform: modbus_controller
+#    name: "Power to Grid 3"
+#    address: 1027
+#    register_type: "read"
+#    unit_of_measurement: W
+#    device_class: power
+#    icon: mdi:flash
+#    value_type: U_DWORD
+#    accuracy_decimals: 1
+#    filters:
+#    - multiply: 0.1
 
   - platform: modbus_controller
     name: "Power to Grid Total"
@@ -528,17 +525,17 @@ sensor:
     filters:
     - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "INV Power to Local Load 3"
-    address: 1035
-    register_type: "read"
-    unit_of_measurement: W
-    device_class: power
-    icon: mdi:flash
-    value_type: U_DWORD
-    accuracy_decimals: 1
-    filters:
-    - multiply: 0.1
+#  - platform: modbus_controller
+#    name: "INV Power to Local Load 3"
+#    address: 1035
+#    register_type: "read"
+#    unit_of_measurement: W
+#    device_class: power
+#    icon: mdi:flash
+#    value_type: U_DWORD
+#    accuracy_decimals: 1
+#    filters:
+#    - multiply: 0.1
 
   - platform: modbus_controller
     name: "INV Power to Local Load Total"

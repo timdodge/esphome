@@ -125,7 +125,7 @@ sensor:
         - throttle_average: ${update_interval}
 
   - platform: total_daily_energy
-    name: Total Daily Energy
+    name: Daily Energy
     power_id: w_sensor
     filters:
       - multiply: 0.001
