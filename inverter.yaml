@@ -159,19 +159,19 @@ text_sensor:
       }
 
   - platform: template
-    name: "Battery Status"
+    name: "SP DSP Status"
     icon: mdi:eye
     entity_category: diagnostic
     update_interval: 10s
     lambda: |-
-      if ((id(battery_status).state) == 0) {
-        return {"Charging"};
-      } else if ((id(battery_status).state) == 1)  {
-        return {"Discharging"};
-      } else if ((id(battery_status).state) == 2)  {
-        return {"Sleep"};
-      } else if ((id(battery_status).state) == 5)  {
-        return {"Grrr"};
+      if ((id(sp_state).state) == 0) {
+        return {"Standby"};
+      } else if ((id(sp_state).state) == 1)  {
+        return {"Self-inspection"};
+      } else if ((id(sp_state).state) == 5)  {
+        return {"On-grid mode"};
+      } else if ((id(sp_state).state) == 9)  {
+        return {"Bypass"};
       } else {
         return {"Unknown"};
       }
@@ -206,7 +206,91 @@ sensor:
     id: status
 
   - platform: modbus_controller
-    name: "Total Power"
+    name: "PV-ALL Power"
+    address: 1
+    register_type: "read"
+    unit_of_measurement: kW
+    device_class: power
+    icon: mdi:solar-power
+    value_type: U_DWORD
+    accuracy_decimals: 3
+    filters:
+    - multiply: 0.0001
+
+  - platform: modbus_controller
+    name: "PV1 Voltage"
+    address: 3
+    register_type: "read"
+    unit_of_measurement: V
+    device_class: voltage
+    icon: mdi:solar-power
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "PV1 Current"
+    address: 4
+    register_type: "read"
+    unit_of_measurement: A
+    device_class: current
+    icon: mdi:solar-power
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "PV1 Power"
+    address: 5
+    register_type: "read"
+    unit_of_measurement: kW
+    device_class: power
+    icon: mdi:solar-power
+    value_type: U_DWORD
+    accuracy_decimals: 3
+    filters:
+    - multiply: 0.0001
+
+  - platform: modbus_controller
+    name: "PV2 Voltage"
+    address: 7
+    register_type: "read"
+    unit_of_measurement: V
+    device_class: voltage
+    icon: mdi:solar-power
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "PV2 Current"
+    address: 8
+    register_type: "read"
+    unit_of_measurement: A
+    device_class: current
+    icon: mdi:solar-power
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "PV2 Power"
+    address: 9
+    register_type: "read"
+    unit_of_measurement: kW
+    device_class: power
+    icon: mdi:solar-power
+    value_type: U_DWORD
+    accuracy_decimals: 3
+    filters:
+    - multiply: 0.0001
+
+  - platform: modbus_controller
+    name: "Output Power"
     address: 35
     register_type: "read"
     unit_of_measurement: kW
@@ -218,18 +302,18 @@ sensor:
     - multiply: 0.0001
 
   - platform: modbus_controller
-    name: "AcFrequency"
+    name: "Grid Frequency"
     address: 37
     register_type: "read"
     unit_of_measurement: Hz
-    icon: mdi:flash
+    icon: mdi:sine-wave
     value_type: U_WORD
     accuracy_decimals: 1
     filters:
     - multiply: 0.01
 
   - platform: modbus_controller
-    name: "AcVoltage VAC1"
+    name: "Inverter Output Voltage (Single/First Phase)"
     address: 38
     register_type: "read"
     unit_of_measurement: V
@@ -241,7 +325,7 @@ sensor:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "AcOutputCurrent IAC1"
+    name: "Inverter Output Current (Single/First Phase)"
     address: 39
     register_type: "read"
     unit_of_measurement: A
@@ -253,7 +337,7 @@ sensor:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "AcPower PAC1"
+    name: "Inverter Output Power (Single/First Phase)"
     address: 40
     register_type: "read"
     unit_of_measurement: W
@@ -337,34 +421,138 @@ sensor:
 #    - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Total Energy Today"
+    name: "Power Generation - Today"
     address: 53
     register_type: "read"
     unit_of_measurement: kWh
     state_class: total_increasing
     device_class: energy
-    icon: mdi:flash
+    icon: mdi:solar-power
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Total Energy Lifetime"
+    name: "Power Generation - Total"
     address: 55
     register_type: "read"
     unit_of_measurement: kWh
     state_class: total_increasing
     device_class: energy
-    icon: mdi:flash
+    icon: mdi:solar-power
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Temperature"
+    name: "Time Since Commissioned"
+    address: 57
+    register_type: "read"
+    unit_of_measurement: s
+    state_class: total
+    device_class: duration
+    icon: mdi:clock
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.5
+
+  - platform: modbus_controller
+    name: "PV1 Energy - Today"
+    address: 59
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:solar-power
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "PV1 Energy - Total"
+    address: 61
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:solar-power
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "PV2 Energy - Today"
+    address: 63
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:solar-power
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "PV2 Energy - Total"
+    address: 65
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:solar-power
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "PV-All Energy - Total"
+    address: 91
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:solar-power
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "Inverter Temperature"
     address: 93
+    register_type: "read"
+    unit_of_measurement: °C
+    device_class: temperature
+    state_class: measurement
+    icon: mdi:thermometer
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "IPM  Temperature"
+    address: 94
+    register_type: "read"
+    unit_of_measurement: °C
+    device_class: temperature
+    state_class: measurement
+    icon: mdi:thermometer
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "Boost Temperature"
+    address: 95
     register_type: "read"
     unit_of_measurement: °C
     device_class: temperature
@@ -381,7 +569,7 @@ sensor:
     register_type: "read"
     unit_of_measurement: kW
     device_class: power
-    icon: mdi:flash
+    icon: mdi:battery-arrow-down
     value_type: U_DWORD
     accuracy_decimals: 3
     filters:
@@ -393,28 +581,40 @@ sensor:
     register_type: "read"
     unit_of_measurement: kW
     device_class: power
-    icon: mdi:flash
+    icon: mdi:battery-arrow-up
     value_type: U_DWORD
     accuracy_decimals: 3
     filters:
     - multiply: 0.0001
 
   - platform: modbus_controller
-    name: "Battery SoC"
+    name: "Battery Voltage"
+    address: 1013
+    register_type: "read"
+    unit_of_measurement: V
+    device_class: voltage
+    icon: mdi:home-battery
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "State of Charge"
     address: 1014
     register_type: "read"
     unit_of_measurement: "%"
-    icon: mdi:flash
+    icon: mdi:home-battery
     value_type: U_WORD
     accuracy_decimals: 0
 
   - platform: modbus_controller
-    name: "Power to User 1"
+    name: "Import from Grid Power"
     address: 1015
     register_type: "read"
     unit_of_measurement: W
     device_class: power
-    icon: mdi:flash
+    icon: mdi:home-import-outline
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
@@ -444,25 +644,25 @@ sensor:
 #    filters:
 #    - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "Power to User Total"
-    address: 1021
-    register_type: "read"
-    unit_of_measurement: kW
-    device_class: power
-    icon: mdi:flash
-    value_type: U_DWORD
-    accuracy_decimals: 3
-    filters:
-    - multiply: 0.0001
+#  - platform: modbus_controller
+#    name: "Import from Grid Total"
+#    address: 1021
+#    register_type: "read"
+#    unit_of_measurement: kW
+#    device_class: power
+#    icon: mdi:flash
+#    value_type: U_DWORD
+#    accuracy_decimals: 3
+#    filters:
+#    - multiply: 0.0001
 
   - platform: modbus_controller
-    name: "Power to Grid 1"
+    name: "Export to Grid Power"
     address: 1023
     register_type: "read"
     unit_of_measurement: W
     device_class: power
-    icon: mdi:flash
+    icon: mdi:home-export-outline
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
@@ -492,25 +692,25 @@ sensor:
 #    filters:
 #    - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "Power to Grid Total"
-    address: 1029
-    register_type: "read"
-    unit_of_measurement: kW
-    device_class: power
-    icon: mdi:flash
-    value_type: U_DWORD
-    accuracy_decimals: 3
-    filters:
-    - multiply: 0.0001
+#  - platform: modbus_controller
+#    name: "Export to Grid Total"
+#    address: 1029
+#    register_type: "read"
+#    unit_of_measurement: kW
+#    device_class: power
+#    icon: mdi:flash
+#    value_type: U_DWORD
+#    accuracy_decimals: 3
+#    filters:
+#    - multiply: 0.0001
 
   - platform: modbus_controller
-    name: "INV Power to Local Load 1"
+    name: "Load Consumption Power"
     address: 1031
     register_type: "read"
     unit_of_measurement: W
     device_class: power
-    icon: mdi:flash
+    icon: mdi:home-lightning-bolt
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
@@ -540,17 +740,17 @@ sensor:
 #    filters:
 #    - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "INV Power to Local Load Total"
-    address: 1037
-    register_type: "read"
-    unit_of_measurement: kW
-    device_class: power
-    icon: mdi:flash
-    value_type: U_DWORD
-    accuracy_decimals: 3
-    filters:
-    - multiply: 0.0001
+#  - platform: modbus_controller
+#    name: "INV Power to Local Load Total"
+#    address: 1037
+#    register_type: "read"
+#    unit_of_measurement: kW
+#    device_class: power
+#    icon: mdi:flash
+#    value_type: U_DWORD
+#    accuracy_decimals: 3
+#    filters:
+#    - multiply: 0.0001
 
   - platform: modbus_controller
     name: "Battery Temperature"
@@ -569,133 +769,159 @@ sensor:
     address: 1041
     register_type: "read"
     internal: true
-    id: battery_status
+    id: sp_state
 
   - platform: modbus_controller
-    name: "Import from Grid Today"
+    name: "Import from Grid Energy - Today"
     address: 1044
     register_type: "read"
     unit_of_measurement: kWh
     state_class: total_increasing
     device_class: energy
-    icon: mdi:flash
+    icon: mdi:home-import-outline
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Import from Grid Total"
+    name: "Import from Grid Energy - Total"
     address: 1046
     register_type: "read"
     unit_of_measurement: kWh
     state_class: total_increasing
     device_class: energy
-    icon: mdi:flash
+    icon: mdi:home-import-outline
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Export to Grid Today"
+    name: "Export to Grid Energy - Today"
     address: 1048
     register_type: "read"
     unit_of_measurement: kWh
     state_class: total_increasing
     device_class: energy
-    icon: mdi:flash
+    icon: mdi:home-export-outline
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Export to Grid Total"
+    name: "Export to Grid Energy - Total"
     address: 1050
     register_type: "read"
     unit_of_measurement: kWh
     state_class: total_increasing
     device_class: energy
-    icon: mdi:flash
+    icon: mdi:home-export-outline
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Battery Discharge Today"
+    name: "Battery Discharged Energy - Today"
     address: 1052
     register_type: "read"
     unit_of_measurement: kWh
     state_class: total_increasing
     device_class: energy
-    icon: mdi:flash
+    icon: mdi:battery-arrow-down
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Battery Discharge Total"
+    name: "Battery Discharged Energy - Total"
     address: 1054
     register_type: "read"
     unit_of_measurement: kWh
     state_class: total_increasing
     device_class: energy
-    icon: mdi:flash
+    icon: mdi:battery-arrow-down
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Battery Charge Today"
+    name: "Battery Charged Energy - Today"
     address: 1056
     register_type: "read"
     unit_of_measurement: kWh
     state_class: total_increasing
     device_class: energy
-    icon: mdi:flash
+    icon: mdi:battery-arrow-up
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Battery Charge Total"
+    name: "Battery Charged Energy - Total"
     address: 1058
     register_type: "read"
     unit_of_measurement: kWh
     state_class: total_increasing
     device_class: energy
-    icon: mdi:flash
+    icon: mdi:battery-arrow-up
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Local Load Today"
+    name: "Load Consumption Energy - Today"
     address: 1060
     register_type: "read"
     unit_of_measurement: kWh
     state_class: total_increasing
     device_class: energy
-    icon: mdi:flash
+    icon: mdi:home-lightning-bolt
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Local Load Total"
+    name: "Load Consumption Energy - Total"
     address: 1062
     register_type: "read"
     unit_of_measurement: kWh
     state_class: total_increasing
     device_class: energy
-    icon: mdi:flash
+    icon: mdi:home-lightning-bolt
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "Battery AC Charge Energy - Today"
+    address: 1124
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:battery-arrow-up
+    value_type: U_DWORD
+    accuracy_decimals: 1
+    filters:
+    - multiply: 0.1
+
+  - platform: modbus_controller
+    name: "Battery AC Charge Energy - Total"
+    address: 1126
+    register_type: "read"
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    icon: mdi:battery-arrow-up
     value_type: U_DWORD
     accuracy_decimals: 1
     filters:
