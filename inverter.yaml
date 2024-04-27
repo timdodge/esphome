@@ -7,8 +7,8 @@ esphome:
   name: $device_name
   friendly_name: $friendly_name
 
-esp32:
-  board: nodemcu-32s
+esp8266:
+  board: d1_mini
 
 wifi:
   ssid: !secret wifi_ssid
@@ -157,21 +157,23 @@ text_sensor:
         return {"Unknown"};
       }
 
-#  - platform: template
-#    name: "Battery Status"
-#    icon: mdi:eye
-#    entity_category: diagnostic
-#    update_interval: 10s
-#    lambda: |-
-#      if ((id(battery_status).state) == 0) {
-#        return {"Charging"};
-#      } else if ((id(battery_status).state) == 1)  {
-#        return {"Discharging"};
-#      } else if ((id(battery_status).state) == 2)  {
-#        return {"Sleep"};
-#      } else {
-#        return {"Unknown"};
-#      }
+  - platform: template
+    name: "Battery Status"
+    icon: mdi:eye
+    entity_category: diagnostic
+    update_interval: 10s
+    lambda: |-
+      if ((id(battery_status).state) == 0) {
+        return {"Charging"};
+      } else if ((id(battery_status).state) == 1)  {
+        return {"Discharging"};
+      } else if ((id(battery_status).state) == 2)  {
+        return {"Sleep"};
+      } else if ((id(battery_status).state) == 5)  {
+        return {"Grrr"};
+      } else {
+        return {"Unknown"};
+      }
 
 sensor:
   - platform: wifi_signal
@@ -261,41 +263,41 @@ sensor:
     filters:
     - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "AcVoltage VAC2"
-    address: 42
-    register_type: "read"
-    unit_of_measurement: V
-    device_class: voltage
-    icon: mdi:flash
-    value_type: U_WORD
-    accuracy_decimals: 1
-    filters:
-    - multiply: 0.1
+#  - platform: modbus_controller
+#    name: "AcVoltage VAC2"
+#    address: 42
+#    register_type: "read"
+#    unit_of_measurement: V
+#    device_class: voltage
+#    icon: mdi:flash
+#    value_type: U_WORD
+#    accuracy_decimals: 1
+#    filters:
+#    - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "AcOutputCurrent IAC2"
-    address: 43
-    register_type: "read"
-    unit_of_measurement: A
-    device_class: current
-    icon: mdi:flash
-    value_type: U_WORD
-    accuracy_decimals: 1
-    filters:
-    - multiply: 0.1
+#  - platform: modbus_controller
+#    name: "AcOutputCurrent IAC2"
+#    address: 43
+#    register_type: "read"
+#    unit_of_measurement: A
+#    device_class: current
+#    icon: mdi:flash
+#    value_type: U_WORD
+#    accuracy_decimals: 1
+#    filters:
+#    - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "AcPower PAC2"
-    address: 44
-    register_type: "read"
-    unit_of_measurement: W
-    device_class: power
-    icon: mdi:flash
-    value_type: U_DWORD
-    accuracy_decimals: 1
-    filters:
-    - multiply: 0.1
+#  - platform: modbus_controller
+#    name: "AcPower PAC2"
+#    address: 44
+#    register_type: "read"
+#    unit_of_measurement: W
+#    device_class: power
+#    icon: mdi:flash
+#    value_type: U_DWORD
+#    accuracy_decimals: 1
+#    filters:
+#    - multiply: 0.1
 
 #  - platform: modbus_controller
 #    name: "AcVoltage VAC3"
@@ -417,17 +419,17 @@ sensor:
     filters:
     - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "Power to User 2"
-    address: 1017
-    register_type: "read"
-    unit_of_measurement: W
-    device_class: power
-    icon: mdi:flash
-    value_type: U_DWORD
-    accuracy_decimals: 1
-    filters:
-    - multiply: 0.1
+#  - platform: modbus_controller
+#    name: "Power to User 2"
+#    address: 1017
+#    register_type: "read"
+#    unit_of_measurement: W
+#    device_class: power
+#    icon: mdi:flash
+#    value_type: U_DWORD
+#    accuracy_decimals: 1
+#    filters:
+#    - multiply: 0.1
 
 #  - platform: modbus_controller
 #    name: "Power to User 3"
@@ -465,17 +467,17 @@ sensor:
     filters:
     - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "Power to Grid 2"
-    address: 1025
-    register_type: "read"
-    unit_of_measurement: W
-    device_class: power
-    icon: mdi:flash
-    value_type: U_DWORD
-    accuracy_decimals: 1
-    filters:
-    - multiply: 0.1
+#  - platform: modbus_controller
+#    name: "Power to Grid 2"
+#    address: 1025
+#    register_type: "read"
+#    unit_of_measurement: W
+#    device_class: power
+#    icon: mdi:flash
+#    value_type: U_DWORD
+#    accuracy_decimals: 1
+#    filters:
+#    - multiply: 0.1
 
 #  - platform: modbus_controller
 #    name: "Power to Grid 3"
@@ -513,17 +515,17 @@ sensor:
     filters:
     - multiply: 0.1
 
-  - platform: modbus_controller
-    name: "INV Power to Local Load 2"
-    address: 1033
-    register_type: "read"
-    unit_of_measurement: W
-    device_class: power
-    icon: mdi:flash
-    value_type: U_DWORD
-    accuracy_decimals: 1
-    filters:
-    - multiply: 0.1
+#  - platform: modbus_controller
+#    name: "INV Power to Local Load 2"
+#    address: 1033
+#    register_type: "read"
+#    unit_of_measurement: W
+#    device_class: power
+#    icon: mdi:flash
+#    value_type: U_DWORD
+#    accuracy_decimals: 1
+#    filters:
+#    - multiply: 0.1
 
 #  - platform: modbus_controller
 #    name: "INV Power to Local Load 3"
@@ -563,15 +565,13 @@ sensor:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Battery State"
     address: 1041
     register_type: "read"
-    icon: mdi:home-battery
-    value_type: U_WORD
-    id: battery_state
+    internal: true
+    id: battery_status
 
   - platform: modbus_controller
-    name: "Energy to User Today"
+    name: "Import from Grid Today"
     address: 1044
     register_type: "read"
     unit_of_measurement: kWh
@@ -584,7 +584,7 @@ sensor:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Energy to User Total"
+    name: "Import from Grid Total"
     address: 1046
     register_type: "read"
     unit_of_measurement: kWh
@@ -597,7 +597,7 @@ sensor:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Energy to Grid Today"
+    name: "Export to Grid Today"
     address: 1048
     register_type: "read"
     unit_of_measurement: kWh
@@ -610,7 +610,7 @@ sensor:
     - multiply: 0.1
 
   - platform: modbus_controller
-    name: "Energy to Grid Total"
+    name: "Export to Grid Total"
     address: 1050
     register_type: "read"
     unit_of_measurement: kWh
