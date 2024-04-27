@@ -209,13 +209,13 @@ sensor:
     name: "PV-ALL Power"
     address: 1
     register_type: "read"
-    unit_of_measurement: kW
+    unit_of_measurement: W
     device_class: power
     icon: mdi:solar-power
     value_type: U_DWORD
-    accuracy_decimals: 3
+    accuracy_decimals: 1
     filters:
-    - multiply: 0.0001
+    - multiply: 0.1
 
   - platform: modbus_controller
     name: "PV1 Voltage"
@@ -567,25 +567,25 @@ sensor:
     name: "Battery Discharging Power"
     address: 1009
     register_type: "read"
-    unit_of_measurement: kW
+    unit_of_measurement: W
     device_class: power
     icon: mdi:battery-arrow-down
     value_type: U_DWORD
-    accuracy_decimals: 3
+    accuracy_decimals: 1
     filters:
-    - multiply: 0.0001
+    - multiply: 0.1
 
   - platform: modbus_controller
     name: "Battery Charging Power"
     address: 1011
     register_type: "read"
-    unit_of_measurement: kW
+    unit_of_measurement: W
     device_class: power
     icon: mdi:battery-arrow-up
     value_type: U_DWORD
-    accuracy_decimals: 3
+    accuracy_decimals: 1
     filters:
-    - multiply: 0.0001
+    - multiply: 0.1
 
   - platform: modbus_controller
     name: "Battery Voltage"
