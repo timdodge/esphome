@@ -44,9 +44,10 @@ time:
 
 uart:
   id: uart_modbus
-  tx_pin: GPIO1
-  rx_pin: GPIO3
+  tx_pin: 1
+  rx_pin: 3
   baud_rate: 9600
+  #baud_rate: 115200
  
 modbus:
   id: modbus1
