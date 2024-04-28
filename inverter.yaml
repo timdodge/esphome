@@ -244,13 +244,13 @@ sensor:
     name: "PV1 Power"
     address: 5
     register_type: "read"
-    unit_of_measurement: kW
+    unit_of_measurement: W
     device_class: power
     icon: mdi:solar-power
     value_type: U_DWORD
-    accuracy_decimals: 3
+    accuracy_decimals: 1
     filters:
-    - multiply: 0.0001
+    - multiply: 0.1
 
   - platform: modbus_controller
     name: "PV2 Voltage"
@@ -280,25 +280,25 @@ sensor:
     name: "PV2 Power"
     address: 9
     register_type: "read"
-    unit_of_measurement: kW
+    unit_of_measurement: W
     device_class: power
     icon: mdi:solar-power
     value_type: U_DWORD
-    accuracy_decimals: 3
+    accuracy_decimals: 1
     filters:
-    - multiply: 0.0001
+    - multiply: 0.1
 
   - platform: modbus_controller
     name: "Output Power"
     address: 35
     register_type: "read"
-    unit_of_measurement: kW
+    unit_of_measurement: W
     device_class: power
     icon: mdi:flash
     value_type: U_DWORD
-    accuracy_decimals: 3
+    accuracy_decimals: 1
     filters:
-    - multiply: 0.0001
+    - multiply: 0.1
 
   - platform: modbus_controller
     name: "Grid Frequency"
