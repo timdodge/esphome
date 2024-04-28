@@ -47,7 +47,6 @@ uart:
   tx_pin: 1
   rx_pin: 3
   baud_rate: 9600
-  #baud_rate: 115200
  
 modbus:
   id: modbus1
@@ -155,7 +154,7 @@ text_sensor:
       } else if (id(status).state == 12)  {
         return {"PV Charge and Discharge"};
       } else {
-        return {"Unknown"};
+        return {"Unknown" + std::to_string(id(status).state)};
       }
 
   - platform: template
@@ -173,7 +172,7 @@ text_sensor:
       } else if ((id(sp_state).state) == 9)  {
         return {"Bypass"};
       } else {
-        return {"Unknown"};
+        return {"Unknown: " + std::to_string(id(sp_state).state)};
       }
 
 sensor:
@@ -453,6 +452,7 @@ sensor:
     unit_of_measurement: s
     state_class: total
     device_class: duration
+    entity_category: diagnostic
     icon: mdi:clock
     value_type: U_DWORD
     accuracy_decimals: 1
@@ -531,6 +531,7 @@ sensor:
     unit_of_measurement: °C
     device_class: temperature
     state_class: measurement
+    entity_category: diagnostic
     icon: mdi:thermometer
     value_type: U_WORD
     accuracy_decimals: 1
@@ -544,6 +545,7 @@ sensor:
     unit_of_measurement: °C
     device_class: temperature
     state_class: measurement
+    entity_category: diagnostic
     icon: mdi:thermometer
     value_type: U_WORD
     accuracy_decimals: 1
@@ -557,6 +559,7 @@ sensor:
     unit_of_measurement: °C
     device_class: temperature
     state_class: measurement
+    entity_category: diagnostic
     icon: mdi:thermometer
     value_type: U_WORD
     accuracy_decimals: 1
@@ -759,6 +762,7 @@ sensor:
     unit_of_measurement: °C
     device_class: temperature
     state_class: measurement    
+    entity_category: diagnostic
     icon: mdi:thermometer
     value_type: U_WORD
     accuracy_decimals: 1
