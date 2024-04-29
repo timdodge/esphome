@@ -248,6 +248,7 @@ output:
 switch:
   - platform: template
     name: Switch
+    icon: mdi:water-boiler
     optimistic: true
     id: relay_1
     turn_off_action:
