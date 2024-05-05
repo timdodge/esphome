@@ -25,10 +25,10 @@ preferences:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
-  #manual_ip:
-  #  static_ip: 172.23.23.12
-  #  gateway: 172.23.23.1
-  #  subnet: 255.255.255.0
+  manual_ip:
+    static_ip: 172.23.23.12
+    gateway: 172.23.23.1
+    subnet: 255.255.255.0
   ap:
     ssid: $device_name
     password: !secret hotspot_wifi_password
