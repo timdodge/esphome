@@ -2,6 +2,8 @@ substitutions:
   device_name: inverter
   friendly_name: "Growatt Inverter"
   device_description: "Growatt SPH5000"
+  upd_int_default: 30s
+  upd_int_slow: 360s
 
 esphome:
   name: $device_name
@@ -56,7 +58,7 @@ modbus_controller:
   - id: growatt
     address: 0x1
     modbus_id: modbus1
-    update_interval: 30s
+    update_interval: $upd_int_default
     setup_priority: -10    
 
 button:
@@ -125,7 +127,7 @@ text_sensor:
     name: "Status"
     icon: mdi:eye
     entity_category: diagnostic
-    update_interval: 10s
+    update_interval: $upd_int_default
     lambda: |-
       if ((id(status).state) == 1) {
         return {"Normal"};
@@ -161,7 +163,7 @@ text_sensor:
     name: "SP DSP Status"
     icon: mdi:eye
     entity_category: diagnostic
-    update_interval: 10s
+    update_interval: $upd_int_default
     lambda: |-
       if ((id(sp_state).state) == 0) {
         return {"Standby"};
@@ -175,12 +177,27 @@ text_sensor:
         return {"Unknown: " + std::to_string(id(sp_state).state)};
       }
 
+  - platform: template
+    name: "Inverter Priority"
+    icon: mdi:eye
+    entity_category: diagnostic
+    update_interval: $upd_int_default
+    lambda: |-
+      if ((id(inverter_prio).state) == 0) {
+        return {"Load First"};
+      } else if ((id(inverter_prio).state) == 1)  {
+        return {"Battery First"};
+      } else if ((id(inverter_prio).state) == 2)  {
+        return {"Grid First"};
+      } else {
+        return {"Unknown: " + std::to_string(id(inverter_prio).state)};
+      }
+
 sensor:
   - platform: wifi_signal
     name: "WiFi Signal"
     id: wifi_signal_db
-    update_interval: 60s
-    entity_category: diagnostic
+    update_interval: $upd_int_slow
     internal: true
 
   # Reports the WiFi signal strength in %
@@ -195,13 +212,12 @@ sensor:
   - platform: uptime
     name: "Uptime"
     id: uptime_sensor
-    update_interval: 60s
+    update_interval: $upd_int_slow
 
   - platform: modbus_controller
     address: 0
     register_type: "read"
     internal: true
-    accuracy_decimals: 0
     id: status
 
   - platform: modbus_controller
@@ -567,6 +583,12 @@ sensor:
     - multiply: 0.1
 
   - platform: modbus_controller
+    address: 118
+    register_type: "read"
+    internal: true
+    id: inverter_prio
+    
+  - platform: modbus_controller
     name: "Battery Discharging Power"
     address: 1009
     register_type: "read"
@@ -930,3 +952,60 @@ sensor:
     accuracy_decimals: 1
     filters:
     - multiply: 0.1
+
+#select:
+#  - platform: modbus_controller
+#    name: "Inverter Priority"
+#    icon: mdi:arrow-decision-outline
+#    address: 1044
+#    value_type: U_WORD
+#    optionsmap:
+#      "Load First": 0
+#      "Battery First": 1
+#      "Grid First": 2
+#
+#  - platform: modbus_controller
+#    name: "AC Charging"
+#    icon: mdi:battery-charging-100
+#    address: 1092
+#    value_type: U_WORD
+#    optionsmap:
+#      "Disabled": 0
+#      "Enabled": 1
+
+number:
+  - platform: modbus_controller
+    name: "Discharge Power Rate"
+    address: 1070
+    register_type: holding
+    value_type: U_WORD
+    min_value: 10
+    max_value: 100
+    step: 1
+
+  - platform: modbus_controller
+    name: "Discharge SoC"
+    address: 1071
+    register_type: holding
+    value_type: U_WORD
+    min_value: 10
+    max_value: 100
+    step: 1
+
+  - platform: modbus_controller
+    name: "Charge Power Rate"
+    address: 1090
+    register_type: holding
+    value_type: U_WORD
+    min_value: 10
+    max_value: 100
+    step: 1
+
+  - platform: modbus_controller
+    name: "Charge SoC"
+    address: 1091
+    register_type: holding
+    value_type: U_WORD
+    min_value: 10
+    max_value: 100
+    step: 1
