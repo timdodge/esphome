@@ -1,0 +1,51 @@
+substitutions:
+  device_name: outside-bath
+  friendly_name: "Outside temperature - Bath"
+
+esphome:
+  name: $device_name
+  friendly_name: $friendly_name
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  manual_ip:
+    static_ip: 172.23.123.17
+    gateway: 172.23.123.1
+    subnet: 255.255.255.0
+  ap:
+    ssid: $device_name
+    password: !secret hotspot_wifi_password
+captive_portal:
+
+web_server:
+  port: 80
+  include_internal: true
+
+logger:
+  level: DEBUG
+
+api:
+  encryption:
+    key: !secret api_enc
+
+ota:
+  password: !secret ota_pwd
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    timezone: Europe/London
+
+dallas:
+  - pin: GPIO4
+
+sensor:
+  - platform: dallas
+    address: 0xfa089ad4456c4828
+    name: "Temperature"
