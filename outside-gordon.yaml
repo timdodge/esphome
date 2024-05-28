@@ -1,0 +1,49 @@
+substitutions:
+  device_name: outside-gordon
+  friendly_name: "Outside temperature - Marazion"
+
+esphome:
+  name: $device_name
+  friendly_name: $friendly_name
+
+esp8266:
+  board: d1_mini
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  manual_ip:
+    static_ip: 172.23.23.13
+    gateway: 172.23.23.1
+    subnet: 255.255.255.0
+  ap:
+    ssid: $device_name
+    password: !secret hotspot_wifi_password
+captive_portal:
+
+web_server:
+  port: 80
+  include_internal: true
+
+logger:
+  level: DEBUG
+
+api:
+  encryption:
+    key: !secret api_enc
+
+ota:
+  password: !secret ota_pwd
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    timezone: Europe/London
+
+dallas:
+  - pin: GPIO12
+
+sensor:
+  - platform: dallas
+    address: 0xdb088fd4463bd228
+    name: "Temperature"
