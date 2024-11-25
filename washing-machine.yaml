@@ -47,7 +47,8 @@ api:
     key: !secret api_enc
 
 ota:
-  password: !secret ota_pwd
+  - platform: esphome
+    password: !secret ota_pwd
 
 time:
   - platform: homeassistant
@@ -57,6 +58,7 @@ time:
 uart:
   rx_pin: RX
   baud_rate: 4800
+  parity: EVEN
 
 globals:
   - id: total_energy

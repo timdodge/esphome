@@ -41,7 +41,8 @@ api:
     key: !secret api_enc
 
 ota:
-  password: !secret ota_pwd
+  - platform: esphome
+    password: !secret ota_pwd
 
 time:
   - platform: homeassistant

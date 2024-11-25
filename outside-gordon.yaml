@@ -33,17 +33,19 @@ api:
     key: !secret api_enc
 
 ota:
-  password: !secret ota_pwd
+  - platform: esphome
+    password: !secret ota_pwd
 
 time:
   - platform: homeassistant
     id: homeassistant_time
     timezone: Europe/London
 
-dallas:
-  - pin: GPIO12
+one_wire:
+  - platform: gpio
+    pin: GPIO12
 
 sensor:
-  - platform: dallas
+  - platform: dallas_temp
     address: 0xdb088fd4463bd228
     name: "Temperature"

@@ -45,11 +45,13 @@ api:
     key: !secret api_enc
 
 ota:
-  password: !secret ota_pwd
+  - platform: esphome
+    password: !secret ota_pwd
 
 uart:
   rx_pin: GPIO16
   baud_rate: 4800
+  parity: EVEN
 
 time:
   - platform: homeassistant
