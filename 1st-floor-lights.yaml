@@ -1,7 +1,7 @@
 substitutions:
-  device_name: washing-machine
-  friendly_name: "Washing Machine"
-  device_description: "Haier HWQ90B416FWB-UK_WH Washing Machine"
+  device_name: 1st-floor-lights
+  friendly_name: "First Floor Lights"
+  device_description: "Christmas Lights on Krystian's Floor"
   main_icon: "power-socket-uk"
   # Options: `RESTORE_DEFAULT_OFF`, `RESTORE_DEFAULT_ON`, `ALWAYS_ON` & `ALWAYS_OFF`
   default_state: "RESTORE_DEFAULT_ON"
@@ -49,7 +49,7 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   manual_ip:
-    static_ip: 172.23.123.16
+    static_ip: 172.23.123.19
     gateway: 172.23.123.1
     subnet: 255.255.255.0
   ap:
