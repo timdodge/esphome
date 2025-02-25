@@ -4,6 +4,8 @@ substitutions:
   device_description: "Sonoff POW Elite 20A"
   update_interval: 20s
 
+# https://devices.esphome.io/devices/Sonoff-POW-Elite-20a
+
 esphome:
   name: $device_name
   friendly_name: $friendly_name

@@ -1,8 +1,8 @@
 substitutions:
-  device_name: oneplug1
-  friendly_name: "OnePlug 1"
-  device_description: "OnePlug wifi switch 1"
-  main_icon: "power-socket-uk"
+  device_name: garden-lights
+  friendly_name: "Garden Lights"
+  device_description: "Switch controlling the garden lights"
+  main_icon: "string-lights"
   # Options: `RESTORE_DEFAULT_OFF`, `RESTORE_DEFAULT_ON`, `ALWAYS_ON` & `ALWAYS_OFF`
   default_state: "RESTORE_DEFAULT_ON"
   # Number that the device will change from `Idle` to `Active` if power is greater than or equal to

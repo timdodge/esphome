@@ -9,8 +9,14 @@ esphome:
   name: $device_name
   friendly_name: $friendly_name
 
-esp8266:
-  board: d1_mini
+esp32:
+  board: seeed_xiao_esp32s3
+  framework: 
+    type: esp-idf
+
+psram:
+  mode: octal
+  speed: 80MHz
 
 wifi:
   ssid: !secret wifi_ssid
@@ -30,8 +36,6 @@ web_server:
 
 logger:
   level: DEBUG
-  esp8266_store_log_strings_in_flash: false
-  tx_buffer_size: 64
   baud_rate: 0
 
 api:
@@ -49,8 +53,8 @@ time:
 
 uart:
   id: uart_modbus
-  tx_pin: 1
-  rx_pin: 3
+  tx_pin: GPIO43
+  rx_pin: GPIO44
   baud_rate: 9600
  
 modbus:
@@ -159,7 +163,7 @@ text_sensor:
       } else if (id(status).state == 12)  {
         return {"PV Charge and Discharge"};
       } else {
-        return {"Unknown" + std::to_string(static_cast<int>(id(status).state))};
+        return {"Unknown: " + std::to_string(static_cast<int>(id(status).state))};
       }
 
   - platform: template
